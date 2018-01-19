@@ -12,13 +12,22 @@ import (
 	tilde "gopkg.in/mattes/go-expand-tilde.v1"
 )
 
-var files = map[string][]string{
-	"cli": []string{"i3-sensible-terminal", "-e"},
-	"gui": []string{},
+var files = map[string]func(config, string){
+	"cli": func(cfg config, arg string) {
+		cmd := exec.Command(cfg.term, "-e", arg)
+		err := cmd.Run()
+		check(err)
+	},
+	"gui": func(cfg config, arg string) {
+		cmd := exec.Command(arg)
+		err := cmd.Run()
+		check(err)
+	},
 }
 
 type config struct {
 	path string
+	term string
 	args []string
 }
 
@@ -58,7 +67,8 @@ func main() {
 	check(err)
 
 	// Execute the chosen app
-	fmt.Println(string(app))
+	appStr := strings.TrimSpace(string(app))
+	files[cmdsIdx[appStr]](cfg, appStr)
 }
 
 // extractArgs returns a string of everything after a -- flag and
@@ -81,6 +91,7 @@ func parseFlags(cfg *config) error {
 	var tmp string // for help text, is a no-op
 	flag.StringVar(&tmp, "-", "", "args to pass to dmenu")
 	flag.StringVar(&cfg.path, "path", "~/.config/dmenual", "path to config dir")
+	flag.StringVar(&cfg.term, "term", "i3-sensible-terminal", "terminal to execute cli")
 	flag.Parse()
 
 	// Expand the possible tilde in the path
