@@ -2,7 +2,11 @@
 A `dmenu` wrapper with very simple, manual configuration.
 
 ## Installation
-Download the correct release for your architecture from the releases page.
+If you have Go installed
+```bash
+$ go get -u github.com/ravernkoh/dmenual
+```
+Alternatively, you can download the correct release for your architecture from the [releases](https://github.com/ravernkoh/dmenual/releases) page.
 
 ## Configuration
 To use `dmenual`, you must first add all the configuration file. The default configuration directory is `~/.config/dmenual` but it can be changed using the `path` flag.
