@@ -40,8 +40,9 @@ func main() {
 	check(err)
 
 	var (
-		cmdsStr = &bytes.Buffer{}
-		cmdsIdx = map[string]string{}
+		cmdsStr = &bytes.Buffer{}     // pass into dmenu
+		cmdsLbl = map[string]string{} // label to actual name
+		cmdsIdx = map[string]string{} // which type of launch to use
 	)
 
 	// Read content files and add to command list
@@ -50,11 +51,15 @@ func main() {
 		check(err)
 		ls := strings.Split(string(s), "\n")
 
-		// Add each one with type of file
+		// Add each one with type of launch
 		for _, l := range ls {
-			if l != "" {
-				cmdsStr.WriteString(l + "\n")
-				cmdsIdx[l] = f
+			ll := strings.Split(l, ":")
+			if len(ll) == 2 {
+				ll[0] = strings.TrimSpace(ll[0])
+				ll[1] = strings.TrimSpace(ll[1])
+				cmdsStr.WriteString(ll[0] + "\n")
+				cmdsLbl[ll[0]] = ll[1]
+				cmdsIdx[ll[1]] = f
 			}
 		}
 	}
@@ -67,7 +72,7 @@ func main() {
 	check(err)
 
 	// Execute the chosen app
-	appStr := strings.TrimSpace(string(app))
+	appStr := cmdsLbl[strings.TrimSpace(string(app))]
 	files[cmdsIdx[appStr]](cfg, appStr)
 }
 
